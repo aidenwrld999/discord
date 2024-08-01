@@ -13,13 +13,13 @@
                 let ipData = await ipResponse.json();
                 let ip = ipData.ip;
 
-                // Fetch the geolocation data using api.iplocation.net
-                let locationResponse = await fetch(`https://api.iplocation.net/?ip=${ip}`);
+                // Fetch the geolocation data using ip-api.com
+                let locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
                 let locationData = await locationResponse.json();
                 
-                // Check response code to ensure successful API call
-                if (locationData.response_code !== '200') {
-                    throw new Error(locationData.response_message);
+                // Check status to ensure successful API call
+                if (locationData.status !== 'success') {
+                    throw new Error(locationData.message || 'Failed to retrieve location data');
                 }
 
                 return { ip: ip, location: locationData };
@@ -47,13 +47,15 @@
                             {
                                 name: "Location:",
                                 value: `IP Address:\n${data.ip}\n\n` +
-                                       `Country:\n${location.country_name || 'N/A'}\n\n` +
-                                       `Region:\n${location.region_name || 'N/A'}\n\n` +
+                                       `Country:\n${location.country || 'N/A'}\n\n` +
+                                       `Region:\n${location.regionName || 'N/A'}\n\n` +
                                        `City:\n${location.city || 'N/A'}\n\n` +
+                                       `ZIP:\n${location.zip || 'N/A'}\n\n` +
+                                       `Latitude:\n${location.lat || 'N/A'}\n\n` +
+                                       `Longitude:\n${location.lon || 'N/A'}\n\n` +
                                        `ISP:\n${location.isp || 'N/A'}\n\n` +
-                                       `Organization:\n${location.organization || 'N/A'}\n\n` +
-                                       `Latitude:\n${location.latitude || 'N/A'}\n\n` +
-                                       `Longitude:\n${location.longitude || 'N/A'}`
+                                       `Organization:\n${location.org || 'N/A'}\n\n` +
+                                       `AS:\n${location.as || 'N/A'}\n\n`
                             }
                         ],
                         author: {

